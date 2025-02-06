@@ -5,9 +5,6 @@ import { app } from "../app.js";
 const port = process.env.PORT || 5000;
 
 const connectDB = async () => {
-  console.log("Server URL: ", SERVER_URL);
-  console.log("DB Name: ", DB_NAME);
-
   try {
     const dbConnect = await mongoose.connect(
       `${SERVER_URL}/${DB_NAME}?retryWrites=true&w=majority`
@@ -17,8 +14,6 @@ const connectDB = async () => {
     app.on("error", () => {
       console.error("Error Connecting With Express: ", error);
       throw error;
-      // OR
-      // process.exit(1)
     });
 
     app.listen(port, () => {

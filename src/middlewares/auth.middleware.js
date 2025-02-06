@@ -3,22 +3,13 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import { UserModel } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
-// Verify User Function
-export const verifyUserToken = async (
-  token,
-  tokenSecret,
-  res,
-  includeRefreshToken = false
-) => {
+// Verify User Token Function
+export const verifyUserToken = async (token, tokenSecret, res) => {
   try {
     const userToken = jwt.verify(token, tokenSecret);
 
-    const fieldsToExclude = includeRefreshToken
-      ? "-password"
-      : "-password -refreshToken";
-
     const user = await UserModel.findById(userToken?._id).select(
-      fieldsToExclude
+      "-password -otpAuth"
     );
 
     if (!user) {
@@ -33,15 +24,10 @@ export const verifyUserToken = async (
 
 // User Token Authentication Function
 export const userTokenAuth = asyncHandler(async (req, res, next) => {
-  console.log("Request Headers:", req.headers);
-
   try {
     const userToken =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
-
-    console.log("userToken: ", userToken);
-    console.log("userTokenSecret: ", process.env.ACCESS_TOKEN_SECRET);
 
     if (!userToken || typeof userToken !== "string") {
       return throwApiError(res, 401, "Unauthorized Request");
